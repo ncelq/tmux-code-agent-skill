@@ -1,0 +1,11 @@
+services:
+  code-agent:
+    build: .
+    ports:
+      - "7860:7860"
+    tty: true
+    stdin_open: true
+
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - OPENCODE_GO_API_KEY=${OPENCODE_GO_API_KEY}
