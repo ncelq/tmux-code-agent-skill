@@ -49,7 +49,7 @@ EXPOSE 7860
 
 
 COPY --chmod=0755 entrypoint.sh /opt/entrypoint.sh
-RUN chmod +x /opt/entrypoint.sh && ls -la /opt/entrypoint.sh
+RUN sed -i 's/\r$//' /opt/entrypoint.sh && chmod +x /opt/entrypoint.sh
 
 COPY .opencode /data/.opencode/
 RUN chown -R coder:coder /data/.opencode
