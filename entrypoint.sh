@@ -34,4 +34,4 @@ EOF
     done
 fi
 
-exec tmux new-session -A -s coder
+#exec tmux new-session -A -s coder
