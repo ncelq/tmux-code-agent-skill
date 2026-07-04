@@ -3,7 +3,7 @@ description: Implementation agent for writing code and building features.
 mode: primary
 color: "#FF00FF"
 #model: opencode-go/mimo-v2.5
-model: opencode-go/minimax-m3
+model: opencode-go/qwen3.7-plus
 temperature: 0.4
 permission:
   edit: allow
