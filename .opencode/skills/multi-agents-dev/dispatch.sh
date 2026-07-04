@@ -49,7 +49,7 @@ send_dispatch() {
         echo "dispatch: pane=$pane message=$message"
     fi
     tmux send-keys -t "$pane" -l "$message"
-    sleep 1
+    sleep 5
     tmux send-keys -t "$pane" C-m
 }
 
