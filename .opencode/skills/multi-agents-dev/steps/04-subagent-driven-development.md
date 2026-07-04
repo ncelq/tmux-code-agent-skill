@@ -40,6 +40,11 @@ Repeat the block below for `CURRENT_TASK` = 1, 2, 3, … up to `TASK_COUNT`. Rep
 
 ### Step 4A — dispatch implementer
 
+**TODO 4A-0** — new session:
+```
+dispatch.cmd implementer "/new"
+```
+
 **TODO 4A-1** — worker dispatch prompt; execute command EXACTLY (replace `<PLAN_PATH>`):
 ```
 dispatch.cmd implementer "refer to <PLAN_PATH>, implement task <N> | TODO: 1) Read task <N> in plan; follow implementer-prompt.md in subagent-driven-development. 2) Implement task <N> yourself (TDD). 3) dispatch.cmd orchestrator \"STATUS UPDATE - task <N> implement finished, status: STATUS, summary: SUMMARY\" — STATUS=pass or fail, SUMMARY=brief result. | AVOID: - DO NOT assign to sub-agents or Task tool - DO NOT skip TODO 3 - DO NOT stop before TODO 3 succeeds"
