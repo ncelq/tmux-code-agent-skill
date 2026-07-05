@@ -3,7 +3,7 @@ set -euo pipefail
 
 #tmux kill-server
 tmux new-session -d -s main "opencode --auto --agent orchestrator; bash"
-tmux split-window -h -t main:0.0 "agent --model Auto --yolo; bash"
+tmux split-window -h -t main:0.1 "agent --model Auto --yolo; bash"
 tmux split-window -h -t main:0.1 "opencode --auto --agent implementer; bash"
 tmux split-window -v -t main:0.2 "opencode --auto --agent ops; bash"
 tmux resize-pane -t main:0.0 -x 30

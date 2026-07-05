@@ -32,15 +32,15 @@ dispatch.cmd ops "/skills using-git-worktrees create branch dev/<FEATURE_NAME> |
 
 **TODO 4** — STOP. Do not run any more commands. Wait for completion signal.
 
-## Worker Completion (main:0.3 runs after worktree created)
+## Worker Completion (main:0.4 runs after worktree created)
 
-Ops pane `main:0.3` **must** execute this as its final action:
+Ops pane `main:0.4` **must** execute this as its final action:
 
 ```
 dispatch.cmd orchestrator "using-git-worktress step finished, you can proceed next step"
 ```
 
-## Worker Questions (main:0.3 → orchestrator)
+## Worker Questions (main:0.4 → orchestrator)
 
 If ops needs to ask the orchestrator a question:
 
@@ -56,6 +56,6 @@ dispatch.cmd orchestrator "<question>"
 - DO NOT split TODO 3 into separate work and callback dispatches
 - DO NOT omit callback instructions from TODO 3
 - DO NOT invent a different `FEATURE_NAME` format
-- DO NOT answer any question from `main:0.3` in orchestrator session — orchestrator answers via dispatch if step allows
+- DO NOT answer any question from `main:0.4` in orchestrator session — orchestrator answers via dispatch if step allows
 - DO NOT run any command not listed in TODO 1–3
 - DO NOT open Step 3 until completion signal received

@@ -1,7 +1,7 @@
 ---
 name: multi-agents-dev
 description: Use when the orchestrator agent in tmux pane main:0.0 receives a high-level feature requirement and must route work across panes without implementing code — symptoms include answering questions meant for other agents, combining send-keys with C-m, or advancing before a pane reports completion.
-compatibility: Requires tmux session "main" with panes 0.0–0.3. **REQUIRED:** multi-agents-init for environment setup.
+compatibility: Requires tmux session "main" with panes 0.0–0.4. **REQUIRED:** multi-agents-init for environment setup.
 ---
 
 # Multi-Agents Dev
@@ -36,9 +36,10 @@ You are the orchestrator in `main:0.0`. You execute numbered commands only. You 
 | dispatch.cmd / dispatch.sh agent | Pane | Role |
 |----------------------------------|------|------|
 | `orchestrator` | `main:0.0` | **YOU** — route only, never implement |
-| `Cursor` | `main:0.1` | Brainstorming, writing plans, code review |
-| `implementer` | `main:0.2` | TDD implementation per plan task |
-| `ops` | `main:0.3` | Git worktree setup, per-task review |
+| `implementer` | `main:0.1` | TDD implementation of **easy** tasks (complexity 1) |
+| `implement_complex` | `main:0.2` | TDD implementation of **complex** tasks (complexity ≥ 2) |
+| `Cursor` | `main:0.3` | Brainstorming, writing plans, code review |
+| `ops` | `main:0.4` | Git worktree setup, per-task review |
 
 ## Platform-Specific Scripts
 
@@ -46,7 +47,7 @@ You are the orchestrator in `main:0.0`. You execute numbered commands only. You 
 |--------|---------|----------|
 | `dispatch.cmd` | Send pane messages | Windows |
 | `dispatch.sh` | Send pane messages | Linux |
-| `init.sh` | Start tmux session with all 4 agents | Linux (requires multi-agents-init) |
+| `init.sh` | Start tmux session with all 5 agents | Linux (requires multi-agents-init) |
 | `install-dispatch.cmd` | Copy dispatch.cmd to project root | Windows |
 | `install-dispatch.sh` | Copy dispatch.sh to project root | Linux |
 
@@ -54,14 +55,14 @@ You are the orchestrator in `main:0.0`. You execute numbered commands only. You 
 
 **At skill startup:** copy the appropriate scripts to project root (see Startup below). After copy, run from project root.
 
-**DO NOT** use raw `tmux send-keys` for agent messages. Exception: BTab pane focus in Steps 1 and 3 uses raw `tmux send-keys -t main:0.1 BTab` (see step files).
+**DO NOT** use raw `tmux send-keys` for agent messages. Exception: BTab pane focus in Steps 1 and 3 uses raw `tmux send-keys -t main:0.3 BTab` (see step files).
 
 | Command | Action |
 |---------|--------|
 | `dispatch.cmd <agent> "<message>"` (Windows) | Send literal message to agent pane, wait 1s, then `C-m` automatically |
 | `dispatch.sh <agent> "<message>"` (Linux) | Same |
 
-**Agent names:** `orchestrator`, `Cursor`, `implementer`, `ops` (case-insensitive)
+**Agent names:** `orchestrator`, `Cursor`, `implementer`, `implement_complex`, `ops` (case-insensitive)
 
 **Examples:**
 ```
@@ -106,7 +107,7 @@ Open and execute **one step file at a time**. Do not open the next step file unt
 
 | # | Rule |
 |---|------|
-| 1 | **DO NOT** answer any question from `main:0.1`, `main:0.2`, or `main:0.3` unless the current step TODO explicitly says "answer question from implementer" or "answer question from ops" |
+| 1 | **DO NOT** answer any question from `main:0.1`, `main:0.2`, `main:0.3`, or `main:0.4` unless the current step TODO explicitly says "answer question from implementer" or "answer question from ops" |
 | 2 | **DO NOT** use raw `tmux send-keys` for agent messages — use `dispatch.cmd` (Windows) or `dispatch.sh` (Linux) only (exception: BTab pane focus in Steps 1 and 3) |
 | 3 | **DO NOT** run any dispatch command except those listed in the current step TODO |
 | 4 | After every work dispatch, **must** include callback instructions in the same message before STOP — workers only see dispatched messages |
@@ -138,9 +139,10 @@ Run from project root. Execute every line in order.
 - After this, all steps use `dispatch.sh` from project root
 
 **TODO 0b** — run `/multi-agents-dev init`:
-- Copies `init.sh` to project root if missing (Linux) or `init.cmd` (Windows)
+- Copies `init.sh` to project root if missing (Linux)
+- Copies `init-2.sh` to project root if missing (Linux)
 - Copies `agents/*.md` to `.opencode/agents/` (always overwrites)
-- Run `./init.sh` (Linux) or `init.cmd` (Windows) to start the tmux session
+- Run `./init.sh` (Linux) to start the tmux session
 - Only needed on first setup or after `tmux kill-server`
 
 **TODO 1** — copy the user's high-level requirement verbatim into `REQUIREMENT`
@@ -153,7 +155,7 @@ Run from project root. Execute every line in order.
 
 | Excuse | Reality |
 |--------|---------|
-| "User is waiting — I'll unblock by answering" | Rule 1. User answers `main:0.1` questions in Step 1 only |
+| "User is waiting — I'll unblock by answering" | Rule 1. User answers `main:0.3` questions in Step 1 only |
 | "Combined send-keys + C-m is faster" | Use `dispatch.cmd` / `dispatch.sh` — it handles C-m automatically |
 | "I'll use raw tmux send-keys" | Rule 2. Use `dispatch.cmd` (Windows) or `dispatch.sh` (Linux) for messages; raw tmux only for BTab pane focus (Steps 1 and 3) |
 | "Completion signal doesn't need C-m" | `dispatch.cmd orchestrator "..."` / `dispatch.sh orchestrator "..."` sends C-m automatically |

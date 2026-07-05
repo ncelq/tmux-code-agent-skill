@@ -14,17 +14,17 @@ Execute TODO lines **one by one, in order**. Use `dispatch.cmd` for all pane mes
 
 **TODO 1** — execute command EXACTLY:
 ```
-tmux send-keys -t main:0.1 BTab
+tmux send-keys -t main:0.3 BTab
 ```
 
 **TODO 2** — execute command EXACTLY:
 ```
-tmux send-keys -t main:0.1 BTab
+tmux send-keys -t main:0.3 BTab
 ```
 
 **TODO 3** — execute command EXACTLY:
 ```
-tmux send-keys -t main:0.1 BTab
+tmux send-keys -t main:0.3 BTab
 ```
 
 **TODO 4** — execute command EXACTLY:
@@ -39,9 +39,9 @@ dispatch.cmd Cursor "/writing-plans using the design doc <DESIGN_PATH> | TODO: 1
 
 **TODO 6** — STOP. Do not run any more commands. Wait for completion signal.
 
-## Worker Completion (main:0.1 runs after plan written)
+## Worker Completion (main:0.3 runs after plan written)
 
-Cursor pane `main:0.1` **must** execute this as its final action (replace `PATH` with actual saved plan file path):
+Cursor pane `main:0.3` **must** execute this as its final action (replace `PATH` with actual saved plan file path):
 
 ```
 dispatch.cmd orchestrator "writing plan step finished, the plan file is at PATH, you can proceed next step"
@@ -54,6 +54,6 @@ dispatch.cmd orchestrator "writing plan step finished, the plan file is at PATH,
 - DO NOT skip any BTab (TODO 1–3 are all required)
 - DO NOT split TODO 5 into separate work and callback dispatches
 - DO NOT omit callback instructions from TODO 5
-- DO NOT answer any question from `main:0.1`
+- DO NOT answer any question from `main:0.3`
 - DO NOT run any command not listed in TODO 1–5
 - DO NOT open Step 4 until completion signal received

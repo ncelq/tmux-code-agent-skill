@@ -11,7 +11,7 @@ exit /b %EXITCODE%
 # dispatch.cmd — send message to agent pane + C-m
 # Usage: dispatch.cmd <agent> <message>
 #
-# Agents: orchestrator, Cursor, implementer, ops
+# Agents: orchestrator, Cursor, implementer, implement_complex, ops
 # Env: TMUX_SESSION (default: main), DISPATCH_DEBUG (set to 1 for verbose)
 #      DISPATCH_FORCE (set to 1 to bypass duplicate guard), DISPATCH_DEDUP_MS (default: 5000)
 
@@ -21,12 +21,13 @@ function Get-AgentPane {
     param([string]$Agent)
     $session = if ($env:TMUX_SESSION) { $env:TMUX_SESSION } else { 'main' }
     switch ($Agent.ToLower()) {
-        'orchestrator' { return "${session}:0.0" }
-        'cursor'       { return "${session}:0.1" }
-        'implementer'  { return "${session}:0.2" }
-        'ops'          { return "${session}:0.3" }
+        'orchestrator'        { return "${session}:0.0" }
+        'implementer'         { return "${session}:0.1" }
+        'implement_complex'   { return "${session}:0.2" }
+        'cursor'              { return "${session}:0.3" }
+        'ops'                 { return "${session}:0.4" }
         default {
-            Write-Error "Unknown agent '$Agent'. Use: orchestrator, Cursor, implementer, ops"
+            Write-Error "Unknown agent '$Agent'. Use: orchestrator, Cursor, implementer, implement_complex, ops"
             exit 1
         }
     }
@@ -70,7 +71,7 @@ Usage:
   Sends message literally, waits 1s, then C-m (Enter) automatically.
   Skips duplicate pane+message within 5s (override: DISPATCH_FORCE=1).
 
-Agents: orchestrator (0.0), Cursor (0.1), implementer (0.2), ops (0.3)
+Agents: orchestrator (0.0), implementer (0.1), implement_complex (0.2), Cursor (0.3), ops (0.4)
 
 Examples:
   dispatch.cmd Cursor "/brainstorming build API. Save specs to ./docs/"

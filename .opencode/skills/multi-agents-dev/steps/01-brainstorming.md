@@ -14,7 +14,7 @@ Execute TODO lines **one by one, in order**. Use `dispatch.cmd` for all pane mes
 
 **TODO 1** — execute command EXACTLY:
 ```
-tmux send-keys -t main:0.1 BTab
+tmux send-keys -t main:0.3 BTab
 ```
 
 **TODO 2** — worker dispatch prompt; execute command EXACTLY (replace `<REQUIREMENT>` with value of `REQUIREMENT`):
@@ -24,9 +24,9 @@ dispatch.cmd Cursor "/brainstorming <REQUIREMENT> | TODO: 1) Run brainstorming; 
 
 **TODO 3** — STOP. Do not run any more commands. Wait for completion signal.
 
-## Worker Completion (main:0.1 runs after brainstorm done)
+## Worker Completion (main:0.3 runs after brainstorm done)
 
-Cursor pane `main:0.1` **must** execute this as its final action (replace `PATH` with actual saved file path):
+Cursor pane `main:0.3` **must** execute this as its final action (replace `PATH` with actual saved file path):
 
 ```
 dispatch.cmd orchestrator "brainstorm step finished, the design file is at PATH, you can proceed next step"
@@ -38,7 +38,7 @@ dispatch.cmd orchestrator "brainstorm step finished, the design file is at PATH,
 - DO NOT use raw `tmux send-keys` except BTab pane focus (TODO 1)
 - DO NOT split TODO 2 into separate work and callback dispatches
 - DO NOT omit callback instructions from TODO 2
-- DO NOT answer any question from `main:0.1` — user answers those
+- DO NOT answer any question from `main:0.3` — user answers those
 - DO NOT run any command not listed in TODO 1–2
 - DO NOT open Step 2 until completion signal received
 - DO NOT treat brainstorm as complete without `brainstorm step finished` signal on orchestrator pane

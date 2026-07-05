@@ -14,7 +14,8 @@ Use `dispatch.cmd` for all pane messages. **DO NOT** use raw `tmux send-keys`. C
 
 | subagent-driven-development says | dispatch.cmd agent |
 |----------------------------------|-------------------|
-| implementer subagent | `implementer` |
+| implementer subagent (complexity 1) | `implementer` |
+| implement_complex subagent (complexity ≥ 2) | `implement_complex` |
 | task reviewer subagent | `ops` |
 
 **DO NOT** use Task tool. **DO NOT** spawn subagents. **DO NOT** implement code yourself.
@@ -38,25 +39,39 @@ Read the plan. Count tasks. Set `TASK_COUNT` = number of tasks. Set `CURRENT_TAS
 
 Repeat the block below for `CURRENT_TASK` = 1, 2, 3, … up to `TASK_COUNT`. Replace `<N>` with `CURRENT_TASK`.
 
+### Complexity-based routing rule
+
+For each task `<N>`, read its complexity in the plan:
+
+| Complexity | Dispatch agent | Pane |
+|------------|---------------|------|
+| 1 (easy) | `implementer` | `main:0.1` |
+| ≥ 2 (complex) | `implement_complex` | `main:0.2` |
+| Not mentioned | Orchestrator decides: easy → `implementer`, otherwise → `implement_complex` |
+
+Set `IMPL_AGENT` to the chosen agent before dispatching.
+
 ### Step 4A — dispatch implementer
 
 **TODO 4A-0** — new session:
 ```
-dispatch.cmd implementer "/new"
+dispatch.cmd $IMPL_AGENT "/new"
 ```
 
-**TODO 4A-1** — worker dispatch prompt; execute command EXACTLY (replace `<PLAN_PATH>`):
+**TODO 4A-1** — worker dispatch prompt; execute command EXACTLY (replace `<PLAN_PATH>` and `$IMPL_AGENT`):
 ```
-dispatch.cmd implementer "refer to <PLAN_PATH>, implement task <N> | TODO: 1) Read task <N> in plan; follow implementer-prompt.md in subagent-driven-development. 2) Implement task <N> yourself (TDD). 3) dispatch.cmd orchestrator \"STATUS UPDATE - task <N> implement finished, status: STATUS, summary: SUMMARY\" — STATUS=pass or fail, SUMMARY=brief result. | AVOID: - DO NOT assign to sub-agents or Task tool - DO NOT skip TODO 3 - DO NOT stop before TODO 3 succeeds"
+dispatch.cmd $IMPL_AGENT "refer to <PLAN_PATH>, implement task <N> | TODO: 1) Read task <N> in plan; follow implementer-prompt.md in subagent-driven-development. 2) Implement task <N> yourself (TDD). 3) dispatch.cmd orchestrator \"STATUS UPDATE - task <N> implement finished, status: STATUS, summary: SUMMARY\" — STATUS=pass or fail, SUMMARY=brief result. | AVOID: - DO NOT assign to sub-agents or Task tool - DO NOT skip TODO 3 - DO NOT stop before TODO 3 succeeds"
 ```
 
 **TODO 4A-2** — STOP. Wait for completion signal containing `task <N> implement finished`.
 
-- IF implementer asks a question → answer it in your session (only step where you answer `main:0.2` questions)
+- IF implementer asks a question → answer it in your session (only step where you answer implementer questions)
 - IF signal received → proceed to Step 4B
 - DO NOT proceed to Step 4B before signal received
 
-#### Worker Completion 4A (main:0.2)
+#### Worker Completion 4A
+
+The implementing pane (`implementer` or `implement_complex` depending on task) must execute:
 
 ```
 dispatch.cmd orchestrator "STATUS UPDATE - task <N> implement finished, status: <pass|fail>, summary: <summary>"
@@ -71,17 +86,17 @@ dispatch.cmd ops "refer to <PLAN_PATH>, review task <N> | TODO: 1) Read task <N>
 
 **TODO 4B-2** — STOP. Wait for completion signal containing `task <N> review finished`.
 
-- IF ops asks a question → answer it in your session (only step where you answer `main:0.3` questions)
+- IF ops asks a question → answer it in your session (only step where you answer ops questions)
 - IF signal contains `status: pass` → set `CURRENT_TASK` = `CURRENT_TASK` + 1. IF `CURRENT_TASK` <= `TASK_COUNT` → repeat from Step 4A. IF `CURRENT_TASK` > `TASK_COUNT` → Step 4 complete, open Step 5.
 - IF signal contains `status: defects` → go to Step 4C (do not increment `CURRENT_TASK`)
 
-#### Worker Completion 4B (main:0.3)
+#### Worker Completion 4B (main:0.4)
 
 ```
 dispatch.cmd orchestrator "STATUS UPDATE - task <N> review finished, status: <pass|defects>, summary: <summary or defect report>"
 ```
 
-#### Worker Questions (main:0.3 → orchestrator)
+#### Worker Questions (main:0.4 → orchestrator)
 
 ```
 dispatch.cmd orchestrator "<question>"
@@ -91,14 +106,16 @@ dispatch.cmd orchestrator "<question>"
 
 **TODO 4C-1** — worker dispatch prompt; execute command EXACTLY (replace defect report text):
 ```
-dispatch.cmd implementer "fix defects for task <N> | TODO: 1) Fix only these defects: <defect/issue report text from reviewer>. 2) dispatch.cmd orchestrator \"STATUS UPDATE - task <N> fix finished, summary: SUMMARY\" — SUMMARY=what you fixed. | AVOID: - DO NOT change unrelated code - DO NOT skip TODO 2 - DO NOT stop before TODO 2 succeeds"
+dispatch.cmd $IMPL_AGENT "fix defects for task <N> | TODO: 1) Fix only these defects: <defect/issue report text from reviewer>. 2) dispatch.cmd orchestrator \"STATUS UPDATE - task <N> fix finished, summary: SUMMARY\" — SUMMARY=what you fixed. | AVOID: - DO NOT change unrelated code - DO NOT skip TODO 2 - DO NOT stop before TODO 2 succeeds"
 ```
 
 **TODO 4C-2** — STOP. Wait for completion signal containing `task <N> fix finished`.
 
 **TODO 4C-3** — go back to Step 4B (re-review same `CURRENT_TASK`, do not increment)
 
-#### Worker Completion 4C (main:0.2)
+#### Worker Completion 4C
+
+The implementing pane (`implementer` or `implement_complex` depending on task) must execute:
 
 ```
 dispatch.cmd orchestrator "STATUS UPDATE - task <N> fix finished, summary: <summary>"

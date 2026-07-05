@@ -30,20 +30,20 @@ dispatch.cmd Cursor "/requesting-code-review for <FEATURE_NAME> | TODO: 1) Revie
 
 **TODO 5** — open `steps/04-subagent-driven-development.md` and execute Step 4C fix loop using the code review issues as the defect report. Then re-run TODO 1–3 of this file.
 
-**TODO 6** — IF implementer (`main:0.2`) asks a question about the review issue:
+**TODO 6** — IF implementer asks a question about the review issue:
   - **TODO 6a** — worker dispatch prompt; execute command EXACTLY (replace `<QUESTION>`):
     ```
     dispatch.cmd Cursor "<QUESTION> | TODO: 1) Answer the code review question for implementer. | AVOID: - DO NOT implement fixes - DO NOT dispatch to other panes"
     ```
-  - **TODO 6b** — STOP. Wait for `main:0.1` answer in your session.
+  - **TODO 6b** — STOP. Wait for `main:0.3` answer in your session.
   - **TODO 6c** — worker dispatch prompt; execute command EXACTLY (replace `<ANSWER>`):
     ```
     dispatch.cmd implementer "<ANSWER> | TODO: 1) Apply this guidance to your fix for the review issue. | AVOID: - DO NOT ask orchestrator the same question again unless blocked"
     ```
 
-## Worker Completion (main:0.1 runs after review done)
+## Worker Completion (main:0.3 runs after review done)
 
-Cursor pane `main:0.1` **must** execute this as its final action:
+Cursor pane `main:0.3` **must** execute this as its final action:
 
 ```
 dispatch.cmd orchestrator "STATUS UPDATE - code review finished, status: <pass|issues>, summary: <summary or issues>"
@@ -55,6 +55,6 @@ dispatch.cmd orchestrator "STATUS UPDATE - code review finished, status: <pass|i
 - DO NOT use raw `tmux send-keys` — use `dispatch.cmd` only
 - DO NOT split TODO 2 into separate work and callback dispatches
 - DO NOT omit callback instructions from TODO 2
-- DO NOT answer code review questions yourself — dispatch to `main:0.1` per TODO 6
+- DO NOT answer code review questions yourself — dispatch to `main:0.3` per TODO 6
 - DO NOT run any command not listed in TODO 1–6
 - DO NOT declare pipeline complete while review issues remain open
