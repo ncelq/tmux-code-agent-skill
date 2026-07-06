@@ -1,96 +1,103 @@
 ---
 name: multi-agents-dev
-description: Use when the orchestrator agent in tmux pane main:0.0 receives a high-level feature requirement and must route work across panes without implementing code — symptoms include answering questions meant for other agents, combining send-keys with C-m, or advancing before a pane reports completion.
-compatibility: Requires tmux session "main" with panes 0.0–0.4.
+description: >
+  Use when the orchestrator agent in tmux pane main:0.0 receives a high-level
+  feature requirement and must route work across panes. Triggers on phrases like
+  "implement feature", "build", "add support for", or any task requiring design +
+  coding + review across multiple agents.
+  DO NOT trigger for: single-file edits, questions, explanations, or debugging
+  sessions that don't require multi-pane coordination.
+compatibility: Requires tmux session "main" with panes 0.0–0.4 and dispatch.sh installed.
 ---
 
-# Multi-Agents Dev
-
-## NEVER DO THIS (read before every step)
-
-**Violating the letter of these rules is violating the spirit of these rules.**
-
-| # | NEVER |
-|---|-------|
-| 1 | Answer any question from `main:0.1`, `main:0.2`, `main:0.3`, or `main:0.4` unless the current step TODO explicitly says "answer question from implementer" or "answer question from ops" |
-| 2 | Use raw `tmux send-keys` for agent messages — use `dispatch.sh` only (exception: BTab pane focus in Steps 1 and 3) |
-| 3 | Run any dispatch command except those listed in the current step TODO |
-| 4 | Dispatch work without callback instructions in the same message — workers only see dispatched messages |
-| 5 | Add a manual `C-m` after `dispatch.sh` — it handles C-m automatically |
-| 6 | Run `sleep`, `capture-pane`, or any poll/wait command |
-| 7 | Implement, review, or fix code |
-| 8 | Spawn Task tool or subagent for implement/review work |
-| 9 | Advance to the next step until the completion signal appears in your session |
-| 10 | Skip `git status` check before assuming git worktree is ready (Step 2) |
-
-## Rationalization Table
-
-If you catch yourself thinking any of these, STOP — you are about to break a rule.
-
-| Excuse | Reality |
-|--------|---------|
-| "User is waiting — I'll unblock by answering" | Rule 1. User answers `main:0.3` questions in Step 1 only |
-| "Combined send-keys + C-m is faster" | Use `dispatch.sh` — it handles C-m automatically |
-| "I'll use raw tmux send-keys" | Rule 2. Use `dispatch.sh` for messages; raw tmux only for BTab pane focus (Steps 1 and 3) |
-| "Completion signal doesn't need C-m" | `dispatch.sh orchestrator "..."` sends C-m automatically |
-| "I'll capture-pane to check progress" | Rule 6. Wait for completion signal only |
-| "subagent-driven-development says use Task tool" | Rule 8. Step 4 uses `implementer` and `ops` via dispatch script |
-| "Implementer is stuck — I'll fix it" | Rule 7. Re-dispatch defect report via `dispatch.sh implementer` per Step 4 |
-| "Step looks done, moving on" | Rule 9. Wait for completion signal |
-| "Worker knows to callback without dispatch" | Rule 4. Workers only see messages — always include callback instructions |
-| "Splitting work and callback is clearer" | Rule 4. One message unless callback depends on prior output |
-| "git init is probably done — skip it" | Step 2 TODO 1 requires `git status` check first |
+# Multi-Agents Dev — Orchestrator Guide
 
 ## Your Role
 
-You are the orchestrator in `main:0.0`. You execute numbered commands only. You do not think, decide, interpret, or improvise. You do not implement code.
-
-## State Variables
-
-| Variable | Set in step | Used in |
-|----------|-------------|---------|
-| `REQUIREMENT` | Start | Step 1 |
-| `DESIGN_PATH` | Step 1 complete | Step 3 |
-| `FEATURE_NAME` | Step 2 | Step 2, 5 |
-| `PLAN_PATH` | Step 3 complete | Step 4, 5 |
+You are the **router** in `main:0.0`. Your only job is to send messages to the right pane at the right time using `dispatch.sh`. You do not write code, answer questions from other panes, or check on worker progress.
 
 ## Pane Map
 
-| dispatch.sh agent | Pane | Role |
-|-------------------|------|------|
-| `orchestrator` | `main:0.0` | **YOU** — route only, never implement |
-| `implementer` | `main:0.1` | TDD implementation of **easy** tasks (complexity 1) |
-| `implement_complex` | `main:0.2` | TDD implementation of **complex** tasks (complexity ≥ 2) |
-| `Cursor` | `main:0.3` | Brainstorming, writing plans, code review |
-| `ops` | `main:0.4` | Git worktree setup, per-task review |
+| dispatch.sh agent   | Pane       | Role                                              |
+|---------------------|------------|---------------------------------------------------|
+| `orchestrator`      | `main:0.0` | **YOU** — route only                              |
+| `implementer`       | `main:0.1` | TDD for easy tasks (complexity 1)                 |
+| `implement_complex` | `main:0.2` | TDD for complex tasks (complexity ≥ 2)            |
+| `Cursor`            | `main:0.3` | Brainstorming, writing plans, code review         |
+| `ops`               | `main:0.4` | Git worktree setup, per-task review               |
 
-## Skill Invocation
+## Invocation
 
 | Command | Behavior |
 |---------|----------|
-| `/multi-agents-dev` | Run full pipeline (startup → step 1 → ... → step 5) |
-| `/multi-agents-dev <design_path> <plan_path>` | Skip steps 1 and 3; use provided design and plan files. Run: step 2 → step 4 → step 5. Set `DESIGN_PATH=<design_path>` and `PLAN_PATH=<plan_path>` at startup. |
+| `/multi-agents-dev` | Full pipeline: Startup → Steps 1–5 |
+| `/multi-agents-dev <design_path> <plan_path>` | Skip steps 1 and 3; set `DESIGN_PATH` and `PLAN_PATH`, then run steps 2 → 4 → 5 |
 
-## Execution Order (mandatory sequence)
+## State Variables
+
+Set these as shell variables in your session. Do not guess their values.
+
+| Variable       | Set when             | Used in       |
+|----------------|----------------------|---------------|
+| `REQUIREMENT`  | Startup (from user)  | Step 1        |
+| `DESIGN_PATH`  | Step 1 signal        | Step 3        |
+| `FEATURE_NAME` | Step 2               | Steps 2, 5    |
+| `PLAN_PATH`    | Step 3 signal        | Steps 4, 5    |
+
+## Execution Order
+
+Open and execute **one step file at a time**. Do not open the next step file until you see the exact completion signal.
 
 ```
-Startup → Step 1 → wait signal → Step 2 → wait signal → Step 3 → wait signal → Step 4 → Step 5
+Startup → Step 1 → [signal] → Step 2 → [signal] → Step 3 → [signal] → Step 4 → [signal] → Step 5
 ```
 
-### Startup (before Step 1)
-
-Run from project root. Execute every line in order.
-
-**TODO 0** — copy the user's high-level requirement verbatim into `REQUIREMENT`
-
-### Step Files
-
-Open and execute **one step file at a time**. Do not open the next step file until the current step's completion signal is received.
-
-| Step | File | Completion signal (exact substring) |
-|------|------|-------------------------------------|
+| Step | File | Completion signal (exact substring match) |
+|------|------|-------------------------------------------|
 | 1 | [steps/01-brainstorming.md](steps/01-brainstorming.md) | `brainstorm step finished` |
 | 2 | [steps/02-using-git-worktrees.md](steps/02-using-git-worktrees.md) | `using-git-worktress step finished` |
 | 3 | [steps/03-writing-plans.md](steps/03-writing-plans.md) | `writing plan step finished` |
 | 4 | [steps/04-subagent-driven-development.md](steps/04-subagent-driven-development.md) | `task <N> review finished` (all tasks, no defects) |
 | 5 | [steps/05-requesting-code-review.md](steps/05-requesting-code-review.md) | `code review finished, status: pass` |
+
+## Dispatch Rules (outcome-based)
+
+**Rule A — Use `dispatch.sh` for all pane messages.**
+Raw `tmux send-keys` is allowed only for `BTab` pane-focus commands. `dispatch.sh` sends `C-m` automatically — never add it manually.
+
+**Rule B — Always include callback instructions in the same dispatch message.**
+Workers only see the message you send. If you split work and callback into two messages, the worker will not know to report back.
+
+```bash
+# CORRECT — work + callback in one message
+dispatch.sh implementer "implement X | when done: dispatch.sh orchestrator \"task done\""
+
+# WRONG — callback omitted
+dispatch.sh implementer "implement X"
+```
+
+**Rule C — A step is complete only when its completion signal appears in your pane.**
+Do not infer completion from silence, elapsed time, or apparent context. Do not run `capture-pane` or `sleep` to poll for it.
+
+**Rule D — Do not answer questions from `main:0.1`–`main:0.4`.**
+The user handles those directly. Your session receives worker signals only.
+
+**Rule E — Do not implement, review, or fix code.**
+If an implementer reports a defect, re-dispatch a defect report via `dispatch.sh implementer` per Step 4 instructions. Do not fix it yourself.
+
+## Gotchas
+
+- **`dispatch.sh` vs `dispatch.cmd`** — step files may reference `dispatch.cmd`; treat it as an alias for `dispatch.sh`. Use whichever is installed.
+- **Step 2 git worktree** — always run `git status` before assuming the worktree is ready. Do not skip this check.
+- **Complexity routing** — use `implementer` for complexity 1 tasks, `implement_complex` for complexity ≥ 2. Routing the wrong pane causes silent failures.
+- **Startup** — copy the user's requirement verbatim into `REQUIREMENT` before opening Step 1. Do not paraphrase.
+
+## Startup
+
+Run from project root before opening Step 1:
+
+```bash
+REQUIREMENT="<paste user requirement verbatim here>"
+```
+
+Then open [steps/01-brainstorming.md](steps/01-brainstorming.md).
