@@ -11,12 +11,10 @@ RUN apt-get update && \
 
 COPY --from=ghcr.io/astral-sh/uv:0.11.6-python3.13-trixie /usr/local/bin/uv /usr/local/bin/uvx /usr/local/bin/
 
-COPY --from=node:22-bookworm-slim /usr/local/bin/node /usr/local/bin/
-COPY --from=node:22-bookworm-slim /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/npm
-COPY --from=node:22-bookworm-slim /usr/local/lib/node_modules/corepack /usr/local/lib/node_modules/corepack
+COPY --from=node:latest /usr/local/bin/node /usr/local/bin/
+COPY --from=node:latest /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/npm
 RUN ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm && \
-    ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx && \
-    ln -sf /usr/local/lib/node_modules/corepack/dist/corepack.js /usr/local/bin/corepack
+    ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 
 RUN useradd -m -u 1000 -d /data coder
 
@@ -33,12 +31,10 @@ RUN curl https://cursor.com/install -fsS | HOME=/data bash
 RUN curl -fsSL https://opencode.ai/install | HOME=/data bash
 
 RUN echo '#!/bin/bash' > /usr/local/bin/init-project.sh && \
-    echo 'agent --yolo "npx skills add https://github.com/obra/superpowers --skill brainstorming"' >> /usr/local/bin/init-project.sh && \
-    echo 'agent --yolo "npx skills add https://github.com/obra/superpowers --skill writing-plans"' >> /usr/local/bin/init-project.sh && \
-    echo 'agent --yolo "npx skills add https://github.com/obra/superpowers --skill receiving-code-review"' >> /usr/local/bin/init-project.sh && \
-    echo '' >> /usr/local/bin/init-project.sh && \
-    echo 'MODEL="${1:-opencode/mimo-v2.5-free}"' >> /usr/local/bin/init-project.sh && \
-    echo 'opencode run --model "$MODEL" "/multi-agents-dev init"' >> /usr/local/bin/init-project.sh && \
+    echo 'PROJECT_DIR="${1:-.}"' >> /usr/local/bin/init-project.sh && \
+    echo 'mkdir -p "$PROJECT_DIR/.opencode"' >> /usr/local/bin/init-project.sh && \
+    echo 'cp -r /data/.opencode/skills/multi-agents-dev/agents "$PROJECT_DIR/.opencode/"' >> /usr/local/bin/init-project.sh && \
+    echo 'cp /data/.opencode/skills/multi-agents-dev/*.sh "$PROJECT_DIR/"' >> /usr/local/bin/init-project.sh && \
     chmod +x /usr/local/bin/init-project.sh
 
 RUN chown -R coder:coder /data/.opencode /data/.cursor /data/.local 2>/dev/null; true
@@ -57,6 +53,9 @@ RUN sed -i 's/\r$//' /opt/entrypoint.sh && chmod +x /opt/entrypoint.sh
 
 COPY .opencode /data/.opencode/
 RUN chown -R coder:coder /data/.opencode
+
+COPY .agents /data/.agents/
+RUN chown -R coder:coder /data/.agents
 
 RUN export LANG=C.UTF-8
 RUN export LC_ALL=C.UTF-8

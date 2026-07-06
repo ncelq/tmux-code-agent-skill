@@ -34,7 +34,7 @@ dispatch.cmd Cursor "/clear"
 
 **TODO 5** — worker dispatch prompt; execute command EXACTLY (replace `<DESIGN_PATH>` with value of `DESIGN_PATH`):
 ```
-dispatch.cmd Cursor "/writing-plans using the design doc <DESIGN_PATH> | TODO: 1) Write implementation plan from design doc; save plan to ./docs/ only. 2) dispatch.cmd orchestrator \"writing plan step finished, the plan file is at PATH, you can proceed next step\" — replace PATH with the saved plan file path. | AVOID: - DO NOT implement code - DO NOT skip TODO 2 - DO NOT stop before TODO 2 succeeds"
+dispatch.cmd Cursor "/writing-plans using the design doc <DESIGN_PATH> | TODO: 1) Write implementation plan from design doc, evaluate the task complexity 1-3 and put the complexity evaluation for each task; save plan to ./docs/ only. 2) dispatch.cmd orchestrator \"writing plan step finished, the plan file is at PATH, you can proceed next step\" — replace PATH with the saved plan file path. | AVOID: - DO NOT implement code - DO NOT skip TODO 2 - DO NOT stop before TODO 2 succeeds"
 ```
 
 **TODO 6** — STOP. Do not run any more commands. Wait for completion signal.
