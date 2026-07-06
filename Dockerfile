@@ -33,6 +33,10 @@ RUN curl https://cursor.com/install -fsS | HOME=/data bash
 RUN curl -fsSL https://opencode.ai/install | HOME=/data bash
 
 RUN echo '#!/bin/bash' > /usr/local/bin/init-project.sh && \
+    echo 'agent --yolo "npx skills add https://github.com/obra/superpowers --skill brainstorming"' >> /usr/local/bin/init-project.sh && \
+    echo 'agent --yolo "npx skills add https://github.com/obra/superpowers --skill writing-plans"' >> /usr/local/bin/init-project.sh && \
+    echo 'agent --yolo "npx skills add https://github.com/obra/superpowers --skill receiving-code-review"' >> /usr/local/bin/init-project.sh && \
+    echo '' >> /usr/local/bin/init-project.sh && \
     echo 'MODEL="${1:-opencode/mimo-v2.5-free}"' >> /usr/local/bin/init-project.sh && \
     echo 'opencode run --model "$MODEL" "/multi-agents-dev init"' >> /usr/local/bin/init-project.sh && \
     chmod +x /usr/local/bin/init-project.sh
