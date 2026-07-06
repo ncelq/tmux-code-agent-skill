@@ -58,4 +58,8 @@ RUN export LANG=C.UTF-8
 RUN export LC_ALL=C.UTF-8
 RUN export LC_CTYPE=C.UTF-8
 
+RUN agent --yolo "npx skills add https://github.com/obra/superpowers --skill brainstorming"
+RUN agent --yolo "npx skills add https://github.com/obra/superpowers --skill writing-plans"
+RUN agent --yolo "npx skills add https://github.com/obra/superpowers --skill receiving-code-review"
+
 ENTRYPOINT ["/opt/entrypoint.sh"]
