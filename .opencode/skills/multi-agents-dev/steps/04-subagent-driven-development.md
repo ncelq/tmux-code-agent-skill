@@ -60,7 +60,7 @@ dispatch.cmd $IMPL_AGENT "/new"
 
 **TODO 4A-1** — worker dispatch prompt; execute command EXACTLY (replace `<PLAN_PATH>` and `$IMPL_AGENT`):
 ```
-dispatch.cmd $IMPL_AGENT "refer to <PLAN_PATH>, implement task <N> | TODO: 1) Read task <N> in plan; follow implementer-prompt.md in subagent-driven-development. 2) Implement task <N> yourself (TDD). 3) dispatch.cmd orchestrator \"STATUS UPDATE - task <N> implement finished, status: STATUS, summary: SUMMARY\" — STATUS=pass or fail, SUMMARY=brief result. | AVOID: - DO NOT assign to sub-agents or Task tool - DO NOT skip TODO 3 - DO NOT stop before TODO 3 succeeds"
+dispatch.cmd $IMPL_AGENT "/test-driven-development refer to <PLAN_PATH>, implement task <N> in dev/<FEATURE_NAME> branch | TODO: 1) Read task <N> in plan; follow implementer-prompt.md in subagent-driven-development. 2) Implement task <N> yourself (TDD). 3) dispatch.cmd orchestrator \"STATUS UPDATE - task <N> implement finished, status: STATUS, summary: SUMMARY\" — STATUS=pass or fail, SUMMARY=brief result. | AVOID: - DO NOT assign to sub-agents or Task tool - DO NOT skip TODO 3 - DO NOT stop before TODO 3 succeeds"
 ```
 
 **TODO 4A-2** — STOP. Wait for completion signal containing `task <N> implement finished`.
@@ -106,7 +106,7 @@ dispatch.cmd orchestrator "<question>"
 
 **TODO 4C-1** — worker dispatch prompt; execute command EXACTLY (replace defect report text):
 ```
-dispatch.cmd $IMPL_AGENT "fix defects for task <N> | TODO: 1) Fix only these defects: <defect/issue report text from reviewer>. 2) dispatch.cmd orchestrator \"STATUS UPDATE - task <N> fix finished, summary: SUMMARY\" — SUMMARY=what you fixed. | AVOID: - DO NOT change unrelated code - DO NOT skip TODO 2 - DO NOT stop before TODO 2 succeeds"
+dispatch.cmd $IMPL_AGENT "fix defects for task <N>  in dev/<FEATURE_NAME> branch | TODO: 1) Fix only these defects: <defect/issue report text from reviewer>. 2) dispatch.cmd orchestrator \"STATUS UPDATE - task <N> fix finished, summary: SUMMARY\" — SUMMARY=what you fixed. | AVOID: - DO NOT change unrelated code - DO NOT skip TODO 2 - DO NOT stop before TODO 2 succeeds"
 ```
 
 **TODO 4C-2** — STOP. Wait for completion signal containing `task <N> fix finished`.
