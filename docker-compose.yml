@@ -9,3 +9,4 @@ services:
     environment:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - OPENCODE_GO_API_KEY=${OPENCODE_GO_API_KEY}
+      - CURSOR_API_KEY=${CURSOR_API_KEY}
