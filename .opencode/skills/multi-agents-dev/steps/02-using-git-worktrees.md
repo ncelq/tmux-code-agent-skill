@@ -8,7 +8,7 @@
 
 ---
 
-Execute TODO lines **one by one, in order**. Use `dispatch.cmd` for all pane messages. **DO NOT** use raw `tmux send-keys`. Combine work and callback in **one** `dispatch.cmd` — do not split into separate messages unless a prior TODO must complete first.
+Execute TODO lines **one by one, in order**. Use `dispatch.sh` for all pane messages. **DO NOT** use raw `tmux send-keys`. Combine work and callback in **one** `dispatch.sh` — do not split into separate messages unless a prior TODO must complete first.
 
 ## TODO (orchestrator — main:0.0)
 
@@ -27,7 +27,7 @@ git status
 
 **TODO 3** — worker dispatch prompt; execute command EXACTLY (replace `<FEATURE_NAME>` with value of `FEATURE_NAME`):
 ```
-dispatch.cmd ops "/skills using-git-worktrees create branch dev/<FEATURE_NAME> | TODO: 1) Create git worktree on branch dev/<FEATURE_NAME>. 2) dispatch.cmd orchestrator \"using-git-worktress step finished, you can proceed next step\". | AVOID: - DO NOT implement feature code - DO NOT skip TODO 2 - DO NOT stop before TODO 2 succeeds"
+dispatch.sh ops "/skills using-git-worktrees create branch dev/<FEATURE_NAME> | TODO: 1) Create git worktree on branch dev/<FEATURE_NAME>. 2) dispatch.sh orchestrator \"using-git-worktress step finished, you can proceed next step\". | AVOID: - DO NOT implement feature code - DO NOT skip TODO 2 - DO NOT stop before TODO 2 succeeds"
 ```
 
 **TODO 4** — STOP. Do not run any more commands. Wait for completion signal.
@@ -37,7 +37,7 @@ dispatch.cmd ops "/skills using-git-worktrees create branch dev/<FEATURE_NAME> |
 Ops pane `main:0.4` **must** execute this as its final action:
 
 ```
-dispatch.cmd orchestrator "using-git-worktress step finished, you can proceed next step"
+dispatch.sh orchestrator "using-git-worktress step finished, you can proceed next step"
 ```
 
 ## Worker Questions (main:0.4 → orchestrator)
@@ -45,13 +45,13 @@ dispatch.cmd orchestrator "using-git-worktress step finished, you can proceed ne
 If ops needs to ask the orchestrator a question:
 
 ```
-dispatch.cmd orchestrator "<question>"
+dispatch.sh orchestrator "<question>"
 ```
 
 ## FORBIDDEN in this step
 
 - DO NOT IMPLEMENT CODE
-- DO NOT use raw `tmux send-keys` — use `dispatch.cmd` only
+- DO NOT use raw `tmux send-keys` — use `dispatch.sh` only
 - DO NOT skip TODO 1 (`git status` is mandatory)
 - DO NOT split TODO 3 into separate work and callback dispatches
 - DO NOT omit callback instructions from TODO 3

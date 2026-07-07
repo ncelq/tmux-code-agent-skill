@@ -87,7 +87,6 @@ If an implementer reports a defect, re-dispatch a defect report via `dispatch.sh
 
 ## Gotchas
 
-- **`dispatch.sh` vs `dispatch.cmd`** — step files may reference `dispatch.cmd`; treat it as an alias for `dispatch.sh`. Use whichever is installed.
 - **Step 2 git worktree** — always run `git status` before assuming the worktree is ready. Do not skip this check.
 - **Complexity routing** — use `implementer` for complexity 1 tasks, `implement_complex` for complexity ≥ 2. Routing the wrong pane causes silent failures.
 - **Startup** — copy the user's requirement verbatim into `REQUIREMENT` before opening Step 1. Do not paraphrase.

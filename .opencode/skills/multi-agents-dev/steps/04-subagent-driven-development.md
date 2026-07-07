@@ -8,11 +8,11 @@
 
 ---
 
-Use `dispatch.cmd` for all pane messages. **DO NOT** use raw `tmux send-keys`. Combine work and callback in **one** `dispatch.cmd` — do not split into separate messages unless a prior TODO must complete first.
+Use `dispatch.sh` for all pane messages. **DO NOT** use raw `tmux send-keys`. Combine work and callback in **one** `dispatch.sh` — do not split into separate messages unless a prior TODO must complete first.
 
 ## Fixed mapping (do not deviate)
 
-| subagent-driven-development says | dispatch.cmd agent |
+| subagent-driven-development says | dispatch.sh agent |
 |----------------------------------|-------------------|
 | implementer subagent (complexity 1) | `implementer` |
 | implement_complex subagent (complexity ≥ 2) | `implement_complex` |
@@ -55,12 +55,12 @@ Set `IMPL_AGENT` to the chosen agent before dispatching.
 
 **TODO 4A-0** — new session:
 ```
-dispatch.cmd $IMPL_AGENT "/new"
+dispatch.sh $IMPL_AGENT "/new"
 ```
 
 **TODO 4A-1** — worker dispatch prompt; execute command EXACTLY (replace `<PLAN_PATH>` and `$IMPL_AGENT`):
 ```
-dispatch.cmd $IMPL_AGENT "/test-driven-development refer to <PLAN_PATH>, implement task <N> in dev/<FEATURE_NAME> branch | TODO: 1) Read task <N> in plan; follow implementer-prompt.md in subagent-driven-development. 2) Implement task <N> yourself (TDD). 3) dispatch.cmd orchestrator \"STATUS UPDATE - task <N> implement finished, status: STATUS, summary: SUMMARY\" — STATUS=pass or fail, SUMMARY=brief result. | AVOID: - DO NOT assign to sub-agents or Task tool - DO NOT skip TODO 3 - DO NOT stop before TODO 3 succeeds"
+dispatch.sh $IMPL_AGENT "/test-driven-development refer to <PLAN_PATH>, implement task <N> in dev/<FEATURE_NAME> branch | TODO: 1) Read task <N> in plan; follow implementer-prompt.md in subagent-driven-development. 2) Implement task <N> yourself (TDD). 3) dispatch.sh orchestrator \"STATUS UPDATE - task <N> implement finished, status: STATUS, summary: SUMMARY\" — STATUS=pass or fail, SUMMARY=brief result. | AVOID: - DO NOT assign to sub-agents or Task tool - DO NOT skip TODO 3 - DO NOT stop before TODO 3 succeeds"
 ```
 
 **TODO 4A-2** — STOP. Wait for completion signal containing `task <N> implement finished`.
@@ -74,14 +74,14 @@ dispatch.cmd $IMPL_AGENT "/test-driven-development refer to <PLAN_PATH>, impleme
 The implementing pane (`implementer` or `implement_complex` depending on task) must execute:
 
 ```
-dispatch.cmd orchestrator "STATUS UPDATE - task <N> implement finished, status: <pass|fail>, summary: <summary>"
+dispatch.sh orchestrator "STATUS UPDATE - task <N> implement finished, status: <pass|fail>, summary: <summary>"
 ```
 
 ### Step 4B — dispatch reviewer
 
 **TODO 4B-1** — worker dispatch prompt; execute command EXACTLY (replace `<PLAN_PATH>`):
 ```
-dispatch.cmd ops "refer to <PLAN_PATH>, review task <N> | TODO: 1) Read task <N> in plan; follow task-reviewer-prompt.md in subagent-driven-development. 2) Review implementation; if issues, write defect report only (no fixes). 3) dispatch.cmd orchestrator \"STATUS UPDATE - task <N> review finished, status: STATUS, summary: SUMMARY\" — STATUS=pass or defects, SUMMARY=result or defect report. | AVOID: - DO NOT fix code - DO NOT spawn sub-agents - DO NOT assign review to Task tool - DO NOT skip TODO 3"
+dispatch.sh ops "refer to <PLAN_PATH>, review task <N> | TODO: 1) Read task <N> in plan; follow task-reviewer-prompt.md in subagent-driven-development. 2) Review implementation; if issues, write defect report only (no fixes). 3) dispatch.sh orchestrator \"STATUS UPDATE - task <N> review finished, status: STATUS, summary: SUMMARY\" — STATUS=pass or defects, SUMMARY=result or defect report. | AVOID: - DO NOT fix code - DO NOT spawn sub-agents - DO NOT assign review to Task tool - DO NOT skip TODO 3"
 ```
 
 **TODO 4B-2** — STOP. Wait for completion signal containing `task <N> review finished`.
@@ -93,20 +93,20 @@ dispatch.cmd ops "refer to <PLAN_PATH>, review task <N> | TODO: 1) Read task <N>
 #### Worker Completion 4B (main:0.4)
 
 ```
-dispatch.cmd orchestrator "STATUS UPDATE - task <N> review finished, status: <pass|defects>, summary: <summary or defect report>"
+dispatch.sh orchestrator "STATUS UPDATE - task <N> review finished, status: <pass|defects>, summary: <summary or defect report>"
 ```
 
 #### Worker Questions (main:0.4 → orchestrator)
 
 ```
-dispatch.cmd orchestrator "<question>"
+dispatch.sh orchestrator "<question>"
 ```
 
 ### Step 4C — fix loop (only when reviewer reports defects)
 
 **TODO 4C-1** — worker dispatch prompt; execute command EXACTLY (replace defect report text):
 ```
-dispatch.cmd $IMPL_AGENT "fix defects for task <N>  in dev/<FEATURE_NAME> branch | TODO: 1) Fix only these defects: <defect/issue report text from reviewer>. 2) dispatch.cmd orchestrator \"STATUS UPDATE - task <N> fix finished, summary: SUMMARY\" — SUMMARY=what you fixed. | AVOID: - DO NOT change unrelated code - DO NOT skip TODO 2 - DO NOT stop before TODO 2 succeeds"
+dispatch.sh $IMPL_AGENT "fix defects for task <N>  in dev/<FEATURE_NAME> branch | TODO: 1) Fix only these defects: <defect/issue report text from reviewer>. 2) dispatch.sh orchestrator \"STATUS UPDATE - task <N> fix finished, summary: SUMMARY\" — SUMMARY=what you fixed. | AVOID: - DO NOT change unrelated code - DO NOT skip TODO 2 - DO NOT stop before TODO 2 succeeds"
 ```
 
 **TODO 4C-2** — STOP. Wait for completion signal containing `task <N> fix finished`.
@@ -118,7 +118,7 @@ dispatch.cmd $IMPL_AGENT "fix defects for task <N>  in dev/<FEATURE_NAME> branch
 The implementing pane (`implementer` or `implement_complex` depending on task) must execute:
 
 ```
-dispatch.cmd orchestrator "STATUS UPDATE - task <N> fix finished, summary: <summary>"
+dispatch.sh orchestrator "STATUS UPDATE - task <N> fix finished, summary: <summary>"
 ```
 
 ---
@@ -126,7 +126,7 @@ dispatch.cmd orchestrator "STATUS UPDATE - task <N> fix finished, summary: <summ
 ## FORBIDDEN in this step
 
 - DO NOT IMPLEMENT CODE
-- DO NOT use raw `tmux send-keys` — use `dispatch.cmd` only
+- DO NOT use raw `tmux send-keys` — use `dispatch.sh` only
 - DO NOT split 4A-1, 4B-1, or 4C-1 into separate work and callback dispatches
 - DO NOT omit callback instructions from 4A-1, 4B-1, or 4C-1
 - DO NOT dispatch TODO 0 to any pane other than yourself
