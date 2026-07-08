@@ -62,10 +62,16 @@ Startup → Step 1 → [signal] → Step 2 → [signal] → Step 3 → [signal] 
 
 ## Dispatch Rules (outcome-based)
 
-**Rule A — Use `dispatch.sh` for all pane messages.**
+**Rule A — A step is complete only when its completion signal appears in your pane.**
+Do not infer completion from silence, elapsed time, or apparent context. Do not run `capture-pane` or `sleep` to poll for it.
+
+**Rule B — Do not implement, review, or fix code.**
+If an implementer reports a defect, re-dispatch a defect report via `dispatch.sh implementer` per Step 4 instructions. Do not fix it yourself.
+
+**Rule C — Use `dispatch.sh` for all pane messages.**
 Raw `tmux send-keys` is allowed only for `BTab` pane-focus commands. `dispatch.sh` sends `C-m` automatically — never add it manually.
 
-**Rule B — Always include callback instructions in the same dispatch message.**
+**Rule D — Always include callback instructions in the same dispatch message.**
 Workers only see the message you send. If you split work and callback into two messages, the worker will not know to report back.
 
 ```bash
@@ -76,14 +82,9 @@ dispatch.sh implementer "implement X | when done: dispatch.sh orchestrator \"tas
 dispatch.sh implementer "implement X"
 ```
 
-**Rule C — A step is complete only when its completion signal appears in your pane.**
-Do not infer completion from silence, elapsed time, or apparent context. Do not run `capture-pane` or `sleep` to poll for it.
-
-**Rule D — Do not answer questions from `main:0.1`–`main:0.4`.**
+**Rule E — Do not answer questions from `main:0.1`–`main:0.4`.**
 The user handles those directly. Your session receives worker signals only.
 
-**Rule E — Do not implement, review, or fix code.**
-If an implementer reports a defect, re-dispatch a defect report via `dispatch.sh implementer` per Step 4 instructions. Do not fix it yourself.
 
 ## Gotchas
 
@@ -98,5 +99,7 @@ Run from project root before opening Step 1:
 ```bash
 REQUIREMENT="<paste user requirement verbatim here>"
 ```
+
+The read and refresh yourself Dispatch Rules (outcome-based) Rule A 
 
 Then open [steps/01-brainstorming.md](steps/01-brainstorming.md).
