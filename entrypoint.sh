@@ -4,6 +4,8 @@ set -e
 CODE_HOME="${CODE_HOME:-/data}"
 
 mkdir -p "$CODE_HOME"
+mkdir -p /opt/data
+chown -R coder:coder /opt/data
 
 # Write HF secrets as explicit export statements so they survive tmux/exec chains
 for VAR in OPENCODE_GO_API_KEY GITHUB_TOKEN; do
