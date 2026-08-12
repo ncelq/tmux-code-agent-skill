@@ -7,27 +7,27 @@ mkdir -p "$CODE_HOME"
 mkdir -p /opt/data
 chown -R coder:coder /opt/data
 
-# Write HF secrets as explicit export statements so they survive tmux/exec chains
-for VAR in OPENCODE_GO_API_KEY GITHUB_TOKEN; do
+# Write secrets as explicit export statements so they survive tmux/exec chains
+for VAR in OPENCODE_API_KEY GITHUB_TOKEN CURSOR_API_KEY; do
     if [ -n "${!VAR}" ]; then
         printf "export %s=%s\n" "$VAR" "$(printf '%q' "${!VAR}")"
     fi
 done > /tmp/env.sh
 chmod 600 /tmp/env.sh
 
-# Write OpenCode auth.json if OPENCODE_GO_API_KEY is set
-if [ -n "${OPENCODE_GO_API_KEY}" ]; then
+# Write OpenCode auth.json if OPENCODE_API_KEY is set
+if [ -n "${OPENCODE_API_KEY}" ]; then
     for AUTH_DIR in "$HOME/.local/share/opencode" "/data/.local/share/opencode"; do
         mkdir -p "$AUTH_DIR"
         cat > "$AUTH_DIR/auth.json" <<EOF
 {
   "opencode": {
     "type": "api",
-    "key": "$OPENCODE_GO_API_KEY"
+    "key": "$OPENCODE_API_KEY"
   },
   "opencode-go": {
     "type": "api",
-    "key": "$OPENCODE_GO_API_KEY"
+    "key": "$OPENCODE_API_KEY"
   }
 }
 EOF
@@ -35,5 +35,32 @@ EOF
         chown -R coder:coder "/data/.local/share/opencode" 2>/dev/null || true
     done
 fi
+
+# Cursor models come from @akepka/pi-cursor-cli-provider, which authenticates
+# via the Agent CLI (CURSOR_API_KEY / agent login) — not Pi auth.json.
+
+# Write Pi agent settings
+PI_SETTINGS_DIR="/data/.pi/agent"
+mkdir -p "$PI_SETTINGS_DIR"
+cat > "$PI_SETTINGS_DIR/settings.json" <<EOF
+{
+  "packages": [
+    "npm:@akepka/pi-cursor-cli-provider"
+  ],
+  "lastChangelogVersion": "0.84.1",
+  "theme": "dark",
+  "enabledModels": [
+    "opencode-go/mimo-v2.5",
+    "opencode-go/deepseek-v4-flash",
+    "opencode/mimo-v2.5-free",
+    "opencode/hy3-free",
+    "cursor/cursor-grok-4.5-high-fast",
+    "cursor/composer-2.5-fast"
+  ],
+  "defaultProvider": "cursor",
+  "defaultModel": "cursor-grok-4.5-high-fast"
+}
+EOF
+chown -R coder:coder "/data/.pi" 2>/dev/null || true
 
 exec tmux new-session -A -s coder

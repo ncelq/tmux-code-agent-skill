@@ -1,6 +1,7 @@
 services:
   code-agent:
     build: .
+    restart: unless-stopped
     ports:
       - "7860:7860"
     tty: true
@@ -9,5 +10,5 @@ services:
       - ~/.code_agent/data:/opt/data 
     environment:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
-      - OPENCODE_GO_API_KEY=${OPENCODE_GO_API_KEY}
+      - OPENCODE_API_KEY=${OPENCODE_API_KEY}
       - CURSOR_API_KEY=${CURSOR_API_KEY}

@@ -22,13 +22,18 @@ RUN printf 'set -g default-terminal "tmux-256color"\nset -as terminal-overrides 
     chown coder:coder /data/.tmux.conf && \
     cp /data/.tmux.conf /root/.tmux.conf
 
-RUN curl -fsSL https://github.com/cli/cli/releases/download/v2.67.0/gh_2.67.0_linux_amd64.tar.gz | \
-    tar xz -C /tmp && \
-    cp /tmp/gh_*/bin/gh /usr/local/bin/ && \
-    rm -rf /tmp/gh_*
+COPY --from=maniator/gh:v2.67.0 /usr/bin/gh /usr/local/bin/gh
 
 RUN curl https://cursor.com/install -fsS | HOME=/data bash
 RUN curl -fsSL https://opencode.ai/install | HOME=/data bash
+RUN npm install -g --ignore-scripts @earendil-works/pi-coding-agent
+RUN HOME=/data pi install npm:@akepka/pi-cursor-cli-provider
+
+# pi-cursor-cli-provider discovers Cursor models via the Cursor CLI (`agent`).
+# Install puts a symlink at ~/.local/bin/agent (not a regular file).
+RUN test -x /data/.local/bin/agent && \
+    ln -sf /data/.local/bin/agent /usr/local/bin/agent && \
+    /usr/local/bin/agent --version
 
 RUN echo '#!/bin/bash' > /usr/local/bin/init-project.sh && \
     echo 'PROJECT_DIR="${1:-.}"' >> /usr/local/bin/init-project.sh && \
@@ -37,10 +42,13 @@ RUN echo '#!/bin/bash' > /usr/local/bin/init-project.sh && \
     echo 'cp /data/.opencode/skills/multi-agents-dev/*.sh "$PROJECT_DIR/"' >> /usr/local/bin/init-project.sh && \
     chmod +x /usr/local/bin/init-project.sh
 
-RUN chown -R coder:coder /data/.opencode /data/.cursor /data/.local 2>/dev/null; true
+RUN chown -R coder:coder /data/.opencode /data/.cursor /data/.local /data/.pi 2>/dev/null; true
 
 ENV CODE_HOME=/data \
-    PATH="/data/.opencode/bin:/data/.cursor/bin:/data/.local/bin:${PATH}" \
+    HOME=/data \
+    PATH="/data/.opencode/bin:/data/.cursor/bin:/data/.local/bin:/usr/local/bin:${PATH}" \
+    CURSOR_AGENT_PATH=/usr/local/bin/agent \
+    AGENT_PATH=/usr/local/bin/agent \
     LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
     LC_CTYPE=C.UTF-8
@@ -51,11 +59,11 @@ EXPOSE 7860
 COPY --chmod=0755 entrypoint.sh /opt/entrypoint.sh
 RUN sed -i 's/\r$//' /opt/entrypoint.sh && chmod +x /opt/entrypoint.sh
 
-COPY .opencode /data/.opencode/
-RUN chown -R coder:coder /data/.opencode
+#COPY .opencode /data/.opencode/
+#RUN chown -R coder:coder /data/.opencode
 
-COPY .agents /data/.agents/
-RUN chown -R coder:coder /data/.agents
+#COPY .agents /data/.agents/
+#RUN chown -R coder:coder /data/.agents
 
 RUN export LANG=C.UTF-8
 RUN export LC_ALL=C.UTF-8
