@@ -7,6 +7,12 @@ mkdir -p "$CODE_HOME"
 mkdir -p /opt/data
 chown -R coder:coder /opt/data
 
+# Ensure the npm cache is writable by the non-root runtime user so that
+# `pi update` (which runs `npm install -g`) can write to it. This is a
+# safety net in case the build-time chown did not take effect.
+mkdir -p "$CODE_HOME/.npm"
+chown -R coder:coder "$CODE_HOME/.npm" 2>/dev/null || true
+
 # Write secrets as explicit export statements so they survive tmux/exec chains
 for VAR in OPENCODE_API_KEY GITHUB_TOKEN CURSOR_API_KEY; do
     if [ -n "${!VAR}" ]; then
@@ -55,10 +61,11 @@ cat > "$PI_SETTINGS_DIR/settings.json" <<EOF
     "opencode/mimo-v2.5-free",
     "opencode/hy3-free",
     "cursor/cursor-grok-4.5-high-fast",
+    "cursor/cursor-grok-4.6-high-fast",
     "cursor/composer-2.5-fast"
   ],
-  "defaultProvider": "cursor",
-  "defaultModel": "cursor-grok-4.5-high-fast"
+  "defaultProvider": "opencode",
+  "defaultModel": "opencode/hy3-free"
 }
 EOF
 chown -R coder:coder "/data/.pi" 2>/dev/null || true
