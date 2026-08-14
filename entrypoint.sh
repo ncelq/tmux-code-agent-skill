@@ -7,6 +7,12 @@ mkdir -p "$CODE_HOME"
 mkdir -p /opt/data
 chown -R coder:coder /opt/data
 
+# Ensure the npm cache is writable by the non-root runtime user so that
+# `pi update` (which runs `npm install -g`) can write to it. This is a
+# safety net in case the build-time chown did not take effect.
+mkdir -p "$CODE_HOME/.npm"
+chown -R coder:coder "$CODE_HOME/.npm" 2>/dev/null || true
+
 # Write secrets as explicit export statements so they survive tmux/exec chains
 for VAR in OPENCODE_API_KEY GITHUB_TOKEN CURSOR_API_KEY; do
     if [ -n "${!VAR}" ]; then

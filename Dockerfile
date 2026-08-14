@@ -42,10 +42,17 @@ RUN echo '#!/bin/bash' > /usr/local/bin/init-project.sh && \
     echo 'cp /data/.opencode/skills/multi-agents-dev/*.sh "$PROJECT_DIR/"' >> /usr/local/bin/init-project.sh && \
     chmod +x /usr/local/bin/init-project.sh
 
-RUN chown -R coder:coder /data/.opencode /data/.cursor /data/.local /data/.pi 2>/dev/null; true
+RUN chown -R coder:coder /data/.opencode /data/.cursor /data/.local /data/.pi /data/.npm 2>/dev/null; true
+
+# Allow the runtime (non-root `coder`) user to run `pi update` itself.
+# `pi update` calls `npm install -g`, which must be able to rename the
+# package dir inside the global lib and recreate the `pi` symlink in bin,
+# and to write to its npm cache (~/.npm == /data/.npm under HOME=/data).
+RUN chown -R coder:coder /usr/local/lib/node_modules /usr/local/bin 2>/dev/null; true
 
 ENV CODE_HOME=/data \
     HOME=/data \
+    NPM_CONFIG_CACHE=/data/.npm \
     PATH="/data/.opencode/bin:/data/.cursor/bin:/data/.local/bin:/usr/local/bin:${PATH}" \
     CURSOR_AGENT_PATH=/usr/local/bin/agent \
     AGENT_PATH=/usr/local/bin/agent \

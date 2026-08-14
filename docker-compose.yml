@@ -12,3 +12,5 @@ services:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - OPENCODE_API_KEY=${OPENCODE_API_KEY}
       - CURSOR_API_KEY=${CURSOR_API_KEY}
+      # Route the npm cache (used by `pi update`) to a coder-writable path.
+      - NPM_CONFIG_CACHE=/data/.npm
