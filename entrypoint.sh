@@ -61,10 +61,11 @@ cat > "$PI_SETTINGS_DIR/settings.json" <<EOF
     "opencode/mimo-v2.5-free",
     "opencode/hy3-free",
     "cursor/cursor-grok-4.5-high-fast",
+    "cursor/cursor-grok-4.6-high-fast",
     "cursor/composer-2.5-fast"
   ],
-  "defaultProvider": "cursor",
-  "defaultModel": "cursor-grok-4.5-high-fast"
+  "defaultProvider": "opencode",
+  "defaultModel": "opencode/hy3-free"
 }
 EOF
 chown -R coder:coder "/data/.pi" 2>/dev/null || true
