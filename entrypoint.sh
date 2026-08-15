@@ -3,15 +3,10 @@ set -e
 
 CODE_HOME="${CODE_HOME:-/data}"
 
-mkdir -p "$CODE_HOME"
 mkdir -p /opt/data
-chown -R coder:coder /opt/data
-
-# Ensure the npm cache is writable by the non-root runtime user so that
-# `pi update` (which runs `npm install -g`) can write to it. This is a
-# safety net in case the build-time chown did not take effect.
-mkdir -p "$CODE_HOME/.npm"
-chown -R coder:coder "$CODE_HOME/.npm" 2>/dev/null || true
+# Bind mounts (especially Docker Desktop on Windows) make recursive chown
+# extremely slow on large trees; ownership on the mount root is enough.
+chown coder:coder /opt/data 2>/dev/null || true
 
 # Write secrets as explicit export statements so they survive tmux/exec chains.
 # Use CODE_HOME (not /tmp) so the coder user can re-run entrypoint after root
@@ -27,9 +22,9 @@ chown coder:coder "$ENV_FILE" 2>/dev/null || true
 
 # Write OpenCode auth.json if OPENCODE_API_KEY is set
 if [ -n "${OPENCODE_API_KEY}" ]; then
-    for AUTH_DIR in "$HOME/.local/share/opencode" "/data/.local/share/opencode"; do
-        mkdir -p "$AUTH_DIR"
-        cat > "$AUTH_DIR/auth.json" <<EOF
+    AUTH_DIR="$CODE_HOME/.local/share/opencode"
+    mkdir -p "$AUTH_DIR"
+    cat > "$AUTH_DIR/auth.json" <<EOF
 {
   "opencode": {
     "type": "api",
@@ -41,40 +36,15 @@ if [ -n "${OPENCODE_API_KEY}" ]; then
   }
 }
 EOF
-        chmod 600 "$AUTH_DIR/auth.json"
-        chown -R coder:coder "/data/.local/share/opencode" 2>/dev/null || true
-    done
+    chmod 600 "$AUTH_DIR/auth.json"
+    chown coder:coder "$AUTH_DIR/auth.json" 2>/dev/null || true
 fi
 
-# Cursor models come from @akepka/pi-cursor-cli-provider, which authenticates
-# via the Agent CLI (CURSOR_API_KEY / agent login) — not Pi auth.json.
+# Detached `compose up -d` has no TTY, so do not start tmux/bash as PID 1.
+# Sleep keeps the container alive for later `docker exec`.
+if [ "$#" -gt 0 ]; then
+    exec "$@"
+else
+    exec sleep infinity
+fi
 
-# Write Pi agent settings
-PI_SETTINGS_DIR="/data/.pi/agent"
-mkdir -p "$PI_SETTINGS_DIR"
-cat > "$PI_SETTINGS_DIR/settings.json" <<EOF
-{
-  "packages": [
-    "npm:@akepka/pi-cursor-cli-provider"
-  ],
-  "lastChangelogVersion": "0.84.1",
-  "theme": "dark",
-  "enabledModels": [
-    "opencode-go/mimo-v2.5",
-    "opencode-go/deepseek-v4-flash",
-    "opencode/mimo-v2.5-free",
-    "cursor/cursor-grok-4.5-high-fast",
-    "cursor/cursor-grok-4.6-high-fast",
-    "cursor/composer-2.5-fast",
-    "opencode/hy3-free",
-    "opencode/nemotron-3-ultra-free",
-    "opencode/nemotron-3.5-lightning-free",
-    "opencode/deepseek-v4-flash-free"
-  ],
-  "defaultProvider": "opencode",
-  "defaultModel": "nemotron-3.5-lightning-free"
-}
-EOF
-chown -R coder:coder "/data/.pi" 2>/dev/null || true
-
-#exec tmux new-session -A -s coder

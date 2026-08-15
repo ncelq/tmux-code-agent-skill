@@ -38,6 +38,32 @@ RUN git clone --depth 1 https://github.com/obra/superpowers.git /tmp/superpowers
     done && \
     rm -rf /tmp/superpowers
 
+# Once-off runtime dirs and default Pi settings (do not regenerate at start).
+RUN mkdir -p /data/.local/share/opencode /data/.npm && \
+    cat > /data/.pi/agent/settings.json <<'EOF'
+{
+  "packages": [
+    "npm:@akepka/pi-cursor-cli-provider"
+  ],
+  "lastChangelogVersion": "0.84.1",
+  "theme": "dark",
+  "enabledModels": [
+    "opencode-go/mimo-v2.5",
+    "opencode-go/deepseek-v4-flash",
+    "opencode/mimo-v2.5-free",
+    "cursor/cursor-grok-4.5-high-fast",
+    "cursor/cursor-grok-4.6-high-fast",
+    "cursor/composer-2.5-fast",
+    "opencode/hy3-free",
+    "opencode/nemotron-3-ultra-free",
+    "opencode/nemotron-3.5-lightning-free",
+    "opencode/deepseek-v4-flash-free"
+  ],
+  "defaultProvider": "opencode",
+  "defaultModel": "nemotron-3.5-lightning-free"
+}
+EOF
+
 # pi-cursor-cli-provider discovers Cursor models via the Cursor CLI (`agent`).
 # Install puts a symlink at ~/.local/bin/agent (not a regular file).
 RUN test -x /data/.local/bin/agent && \
