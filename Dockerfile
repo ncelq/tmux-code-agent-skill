@@ -29,15 +29,6 @@ RUN curl -fsSL https://opencode.ai/install | HOME=/data bash
 RUN npm install -g --ignore-scripts --min-release-age=0 @earendil-works/pi-coding-agent
 RUN HOME=/data pi install npm:@akepka/pi-cursor-cli-provider
 
-RUN git clone --depth 1 https://github.com/obra/superpowers.git /tmp/superpowers && \
-    mkdir -p /data/.pi/agent/skills && \
-    for skill in brainstorming writing-plans "test-driven-development" \
-        "using-git-worktrees" "requesting-code-review" \
-        "finishing-a-development-branch"; do \
-        mv "/tmp/superpowers/skills/$skill" /data/.pi/agent/skills/; \
-    done && \
-    rm -rf /tmp/superpowers
-
 # Once-off runtime dirs and default Pi settings (do not regenerate at start).
 RUN mkdir -p /data/.local/share/opencode /data/.npm && \
     cat > /data/.pi/agent/settings.json <<'EOF'
@@ -63,6 +54,9 @@ RUN mkdir -p /data/.local/share/opencode /data/.npm && \
   "defaultModel": "nemotron-3.5-lightning-free"
 }
 EOF
+
+RUN mkdir -p ~/.pi/agent/extensions
+RUN cp -r /usr/local/lib/node_modules/@earendil-works/pi-coding-agent/examples/extensions/plan-mode ~/.pi/agent/extensions/
 
 # pi-cursor-cli-provider discovers Cursor models via the Cursor CLI (`agent`).
 # Install puts a symlink at ~/.local/bin/agent (not a regular file).
@@ -100,6 +94,15 @@ EXPOSE 7860
 
 COPY --chmod=0755 entrypoint.sh /opt/entrypoint.sh
 RUN sed -i 's/\r$//' /opt/entrypoint.sh && chmod +x /opt/entrypoint.sh
+
+RUN echo "https://$GITHUB_TOKEN:@github.com" > ~/.git-credentials
+RUN git config --global credential.helper store
+
+COPY .pi /data/.pi/
+RUN chown -R coder:coder /data/.pi
+
+COPY .cursor /data/.cursor/
+RUN chown -R coder:coder /data/.cursor
 
 #COPY .opencode /data/.opencode/
 #RUN chown -R coder:coder /data/.opencode
