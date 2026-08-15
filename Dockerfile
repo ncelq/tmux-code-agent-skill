@@ -26,9 +26,15 @@ COPY --from=maniator/gh:v2.67.0 /usr/bin/gh /usr/local/bin/gh
 
 RUN curl https://cursor.com/install -fsS | HOME=/data bash
 RUN curl -fsSL https://opencode.ai/install | HOME=/data bash
-RUN npm install -g --ignore-scripts @earendil-works/pi-coding-agent
+RUN npm install -g --ignore-scripts --min-release-age=0 @earendil-works/pi-coding-agent
 RUN HOME=/data pi install npm:@akepka/pi-cursor-cli-provider
-RUN HOME=/data pi update
+
+RUN git clone https://github.com/obra/superpowers.git /tmp/superpowers && \
+    for skill in brainstorming writing-plans "test-driven-development" \
+        "using-git-worktrees" "requesting-code-review" \
+        "finishing-a-development-branch"; do \
+        mv "/tmp/superpowers/$skill" ~/.pi/agent/skills/; \
+    done
 
 # pi-cursor-cli-provider discovers Cursor models via the Cursor CLI (`agent`).
 # Install puts a symlink at ~/.local/bin/agent (not a regular file).
