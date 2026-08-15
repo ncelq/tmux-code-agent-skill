@@ -28,6 +28,7 @@ RUN curl https://cursor.com/install -fsS | HOME=/data bash
 RUN curl -fsSL https://opencode.ai/install | HOME=/data bash
 RUN npm install -g --ignore-scripts @earendil-works/pi-coding-agent
 RUN HOME=/data pi install npm:@akepka/pi-cursor-cli-provider
+RUN HOME=/data pi update
 
 # pi-cursor-cli-provider discovers Cursor models via the Cursor CLI (`agent`).
 # Install puts a symlink at ~/.local/bin/agent (not a regular file).

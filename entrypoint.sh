@@ -13,13 +13,17 @@ chown -R coder:coder /opt/data
 mkdir -p "$CODE_HOME/.npm"
 chown -R coder:coder "$CODE_HOME/.npm" 2>/dev/null || true
 
-# Write secrets as explicit export statements so they survive tmux/exec chains
+# Write secrets as explicit export statements so they survive tmux/exec chains.
+# Use CODE_HOME (not /tmp) so the coder user can re-run entrypoint after root
+# created the file at container start.
+ENV_FILE="$CODE_HOME/.env.sh"
 for VAR in OPENCODE_API_KEY GITHUB_TOKEN CURSOR_API_KEY; do
     if [ -n "${!VAR}" ]; then
         printf "export %s=%s\n" "$VAR" "$(printf '%q' "${!VAR}")"
     fi
-done > /tmp/env.sh
-chmod 600 /tmp/env.sh
+done > "$ENV_FILE"
+chmod 600 "$ENV_FILE"
+chown coder:coder "$ENV_FILE" 2>/dev/null || true
 
 # Write OpenCode auth.json if OPENCODE_API_KEY is set
 if [ -n "${OPENCODE_API_KEY}" ]; then
@@ -59,15 +63,18 @@ cat > "$PI_SETTINGS_DIR/settings.json" <<EOF
     "opencode-go/mimo-v2.5",
     "opencode-go/deepseek-v4-flash",
     "opencode/mimo-v2.5-free",
-    "opencode/hy3-free",
     "cursor/cursor-grok-4.5-high-fast",
     "cursor/cursor-grok-4.6-high-fast",
-    "cursor/composer-2.5-fast"
+    "cursor/composer-2.5-fast",
+    "opencode/hy3-free",
+    "opencode/nemotron-3-ultra-free",
+    "opencode/nemotron-3.5-lightning-free",
+    "opencode/deepseek-v4-flash-free"
   ],
   "defaultProvider": "opencode",
-  "defaultModel": "opencode/hy3-free"
+  "defaultModel": "nemotron-3.5-lightning-free"
 }
 EOF
 chown -R coder:coder "/data/.pi" 2>/dev/null || true
 
-exec tmux new-session -A -s coder
+#exec tmux new-session -A -s coder
