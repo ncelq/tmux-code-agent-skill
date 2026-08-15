@@ -29,12 +29,14 @@ RUN curl -fsSL https://opencode.ai/install | HOME=/data bash
 RUN npm install -g --ignore-scripts --min-release-age=0 @earendil-works/pi-coding-agent
 RUN HOME=/data pi install npm:@akepka/pi-cursor-cli-provider
 
-RUN git clone https://github.com/obra/superpowers.git /tmp/superpowers && \
+RUN git clone --depth 1 https://github.com/obra/superpowers.git /tmp/superpowers && \
+    mkdir -p /data/.pi/agent/skills && \
     for skill in brainstorming writing-plans "test-driven-development" \
         "using-git-worktrees" "requesting-code-review" \
         "finishing-a-development-branch"; do \
-        mv "/tmp/superpowers/$skill" ~/.pi/agent/skills/; \
-    done
+        mv "/tmp/superpowers/skills/$skill" /data/.pi/agent/skills/; \
+    done && \
+    rm -rf /tmp/superpowers
 
 # pi-cursor-cli-provider discovers Cursor models via the Cursor CLI (`agent`).
 # Install puts a symlink at ~/.local/bin/agent (not a regular file).
