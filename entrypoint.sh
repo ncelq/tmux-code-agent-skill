@@ -40,6 +40,21 @@ EOF
     chown coder:coder "$AUTH_DIR/auth.json" 2>/dev/null || true
 fi
 
+
+# Write OpenCode auth.json if OPENCODE_API_KEY is set
+if [ -n "${QUANTCONNECT_API_KEY}" ]; then
+    AUTH_DIR="$CODE_HOME/.lean"
+    mkdir -p "$AUTH_DIR"
+    cat > "$AUTH_DIR/credentials" <<EOF
+{
+    "user-id": "$QUANTCONNECT_USERID",
+    "api-token": "$QUANTCONNECT_API_KEY"
+}
+EOF
+    chmod 600 "$AUTH_DIR/credentials"
+    chown coder:coder "$AUTH_DIR/credentials" 2>/dev/null || true
+fi
+
 # Detached `compose up -d` has no TTY, so do not start tmux/bash as PID 1.
 # Sleep keeps the container alive for later `docker exec`.
 if [ "$#" -gt 0 ]; then

@@ -24,6 +24,14 @@ RUN printf 'set -g default-terminal "tmux-256color"\nset -as terminal-overrides 
 
 COPY --from=maniator/gh:v2.67.0 /usr/bin/gh /usr/local/bin/gh
 
+# Lean CLI does not ship modules-*.json in the wheel; on import it downloads
+# that file into its own package directory and refreshes it daily. Fetch it
+# now as root so the file exists. Always chown the package to `coder` so the
+# runtime user can write the refresh (and __pycache__) even if the CDN fetch
+# fails during the image build.
+RUN pip install lean --break-system-packages && \
+    (python3 -c "from lean.models import json_modules" || true) && \
+    chown -R coder:coder "$(python3 -c 'import lean, pathlib; print(pathlib.Path(lean.__file__).parent)')"
 RUN curl https://cursor.com/install -fsS | HOME=/data bash
 RUN curl -fsSL https://opencode.ai/install | HOME=/data bash
 RUN npm install -g --ignore-scripts --min-release-age=0 @earendil-works/pi-coding-agent
@@ -38,6 +46,7 @@ RUN mkdir -p /data/.local/share/opencode /data/.npm && \
   ],
   "lastChangelogVersion": "0.84.1",
   "theme": "dark",
+  "skills": ["/data/.pi/skills"],
   "enabledModels": [
     "opencode-go/mimo-v2.5",
     "opencode-go/deepseek-v4-flash",
