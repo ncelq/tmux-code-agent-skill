@@ -38,7 +38,7 @@ RUN npm install -g --ignore-scripts --min-release-age=0 @earendil-works/pi-codin
 RUN HOME=/data pi install npm:@akepka/pi-cursor-cli-provider
 
 # Once-off runtime dirs and default Pi settings (do not regenerate at start).
-RUN mkdir -p /data/.local/share/opencode /data/.npm && \
+RUN mkdir -p /data/.local/share/opencode /data/.npm /data/.lean && \
     cat > /data/.pi/agent/settings.json <<'EOF'
 {
   "packages": [
@@ -50,14 +50,19 @@ RUN mkdir -p /data/.local/share/opencode /data/.npm && \
   "enabledModels": [
     "opencode-go/mimo-v2.5",
     "opencode-go/deepseek-v4-flash",
-    "opencode/mimo-v2.5-free",
     "cursor/cursor-grok-4.5-high-fast",
     "cursor/cursor-grok-4.6-high-fast",
     "cursor/composer-2.5-fast",
     "opencode/hy3-free",
     "opencode/nemotron-3-ultra-free",
     "opencode/nemotron-3.5-lightning-free",
-    "opencode/deepseek-v4-flash-free"
+    "mistral/codestral-latest",
+    "nvidia/z-ai/glm-5.2",
+    "nvidia/moonshotai/kimi-k2.6",
+    "nvidia/minimaxai/minimax-m3",
+    "nvidia/nvidia/nemotron-3-ultra-550b-a55b",
+    "nvidia/nvidia/nemotron-3.5-lightning-30b-a3b",
+    "nvidia/nvidia/nemotron-3-super-120b-a12b"
   ],
   "defaultProvider": "opencode",
   "defaultModel": "nemotron-3.5-lightning-free"
@@ -80,7 +85,7 @@ RUN echo '#!/bin/bash' > /usr/local/bin/init-project.sh && \
     echo 'cp /data/.opencode/skills/multi-agents-dev/*.sh "$PROJECT_DIR/"' >> /usr/local/bin/init-project.sh && \
     chmod +x /usr/local/bin/init-project.sh
 
-RUN chown -R coder:coder /data/.opencode /data/.cursor /data/.local /data/.pi /data/.npm 2>/dev/null; true
+RUN chown -R coder:coder /data/.opencode /data/.cursor /data/.local /data/.pi /data/.npm /data/.lean 2>/dev/null; true
 
 # Allow the runtime (non-root `coder`) user to run `pi update` itself.
 # `pi update` calls `npm install -g`, which must be able to rename the

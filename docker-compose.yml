@@ -9,6 +9,8 @@ services:
     volumes:
       - ~/.code_agent/data:/opt/data 
     environment:
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY}
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - OPENCODE_API_KEY=${OPENCODE_API_KEY}
       - CURSOR_API_KEY=${CURSOR_API_KEY}

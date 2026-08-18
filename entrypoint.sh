@@ -52,7 +52,8 @@ if [ -n "${QUANTCONNECT_API_KEY}" ]; then
 }
 EOF
     chmod 600 "$AUTH_DIR/credentials"
-    chown coder:coder "$AUTH_DIR/credentials" 2>/dev/null || true
+    # Directory must be coder-owned too: Lean writes cache.lock here.
+    chown -R coder:coder "$AUTH_DIR" 2>/dev/null || true
 fi
 
 # Detached `compose up -d` has no TTY, so do not start tmux/bash as PID 1.
