@@ -36,6 +36,8 @@ RUN curl https://cursor.com/install -fsS | HOME=/data bash
 RUN curl -fsSL https://opencode.ai/install | HOME=/data bash
 RUN npm install -g --ignore-scripts --min-release-age=0 @earendil-works/pi-coding-agent
 RUN HOME=/data pi install npm:@akepka/pi-cursor-cli-provider
+RUN HOME=/data pi install npm:@narumitw/pi-goal
+RUN HOME=/data pi install npm:@narumitw/pi-plan-mode
 
 # Once-off runtime dirs and default Pi settings (do not regenerate at start).
 RUN mkdir -p /data/.local/share/opencode /data/.npm /data/.lean && \
