@@ -44,32 +44,25 @@ RUN mkdir -p /data/.local/share/opencode /data/.npm /data/.lean && \
     cat > /data/.pi/agent/settings.json <<'EOF'
 {
   "packages": [
-    "npm:@akepka/pi-cursor-cli-provider"
+    "npm:@akepka/pi-cursor-cli-provider",
+    "npm:@narumitw/pi-goal",
+    "npm:@narumitw/pi-plan-mode"
   ],
-  "lastChangelogVersion": "0.84.1",
+  "lastChangelogVersion": "0.85.1",
   "theme": "dark",
-  "skills": ["/data/.pi/skills"],
+  "skills": [
+    "/data/.pi/skills"
+  ],
   "enabledModels": [
-    "opencode-go/mimo-v2.5",
-    "opencode-go/deepseek-v4-flash",
-    "opencode-go/muse-spark-1.2-contributor",
-    "cursor/cursor-grok-4.5-high-fast",
-    "cursor/cursor-grok-4.6-high-fast",
-    "cursor/composer-2.5-fast",
-    "opencode/hy3-free",
-    "opencode/nemotron-3-ultra-free",
-    "opencode/nemotron-3.5-lightning-free",
-    "cursor/claude-opus-5-thinking-max",
-    "mistral/codestral-latest",
-    "nvidia/z-ai/glm-5.2",
-    "nvidia/moonshotai/kimi-k2.6",
-    "nvidia/minimaxai/minimax-m3",
     "nvidia/nvidia/nemotron-3-ultra-550b-a55b",
     "nvidia/nvidia/nemotron-3.5-lightning-30b-a3b",
-    "nvidia/nvidia/nemotron-3-super-120b-a12b"
+    "nvidia/nvidia/nemotron-3-super-120b-a12b",
+    "opencode-go/mimo-v2.5",
+    "opencode-go/deepseek-v4.1-flash",
+    "cursor/composer-2.5"
   ],
-  "defaultProvider": "opencode",
-  "defaultModel": "nemotron-3.5-lightning-free"
+  "defaultProvider": "opencode-go",
+  "defaultModel": "opencode-go/mimo-v2.5"
 }
 EOF
 
