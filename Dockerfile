@@ -38,12 +38,7 @@ RUN npm install -g --ignore-scripts --min-release-age=0 @earendil-works/pi-codin
 RUN HOME=/data pi install npm:@akepka/pi-cursor-cli-provider
 RUN HOME=/data pi install npm:@narumitw/pi-goal
 RUN HOME=/data pi install npm:@narumitw/pi-plan-mode
-
-# Branch-aware todo tool + /todos command. Vendored from gcp-code-cli/pi-todo.
-# Local package entries resolve from /data/.pi/agent, so the settings entry
-# "packages/todo" points at /data/.pi/agent/packages/todo.
-COPY pi-todo /data/.pi/agent/packages/todo
-RUN HOME=/data pi install /data/.pi/agent/packages/todo
+RUN HOME=/data pi install npm:@juicesharp/rpiv-todo
 
 # Once-off runtime dirs and default Pi settings (do not regenerate at start).
 RUN mkdir -p /data/.local/share/opencode /data/.npm /data/.lean && \
@@ -53,7 +48,7 @@ RUN mkdir -p /data/.local/share/opencode /data/.npm /data/.lean && \
     "npm:@akepka/pi-cursor-cli-provider",
     "npm:@narumitw/pi-goal",
     "npm:@narumitw/pi-plan-mode",
-    "packages/todo"
+    "npm:@juicesharp/rpiv-todo"
   ],
   "lastChangelogVersion": "0.85.1",
   "theme": "dark",
